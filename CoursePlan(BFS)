@@ -1,32 +1,80 @@
-// Introduce 3 status for a Node: unvisited, visiting, visited
-// Visiting means a Node is in the current DFS Path.
-// Change visiting node to be visited when the DFS path ends.
-// This marking way helps a lot when we do DFS:
+package Yan0522;
 
-  public class Solution {
-    public boolean canFinish(int numCourses, int[][] prerequisites) {
-        if (prerequisites.length == 0) return true;
-        int[] visit = new int[numCourses];        // 0: unvisited, 1: visiting, 2: visited
-        for (int i = 0; i < prerequisites.length; i++){
-            if (visit[prerequisites[i][1]] == 0){
-                boolean classPath = dfs(prerequisites, visit, prerequisites[i][1]);
-                if (classPath == false) return false;
-            }
-        }
-        return true;
-    }
-    private boolean dfs(int[][] prerequisites, int[] visit, int precourse){
-        if (visit[precourse] == 1) return false;
-        if (visit[precourse] == 2) return true;
-        visit[precourse] = 1;
-        for (int i = 0; i < prerequisites.length; i++){
-            if (prerequisites[i][1] == precourse){
-                //System.out.println(precourse);
-                boolean nextPath =  dfs(prerequisites, visit, prerequisites[i][0]);
-                if (!nextPath) return false;
-            }
-        }
-        visit[precourse] = 2;
-        return true;
+import java.util.*;
+
+class Course{
+    int num;
+    int preNum;
+    List<Course> postCourses;
+    public Course(int num, int preNum){
+        this.num = num;
+        this.preNum = preNum;
+        postCourses = new ArrayList<>();
     }
 }
+
+public class coursePlan {
+
+
+		    public static int[] findOrder(int numCourses, int[][] prerequisites) {
+		        if (numCourses == 0 || prerequisites == null) return null;
+		        //if (prerequisites.length == 0) return new int[0];
+		        HashMap<Integer, Course> courses = createCourses(numCourses, prerequisites);
+		        Queue<Course> queue = new ArrayDeque<>();
+		        HashSet<Integer> set = new HashSet<>();
+		        List<Integer> classList = new ArrayList<>();
+		        for (Map.Entry<Integer, Course> courseEntry : courses.entrySet()){
+		            //System.out.println(courseEntry.getValue().num + " " + courseEntry.getValue().preNum);
+		            if (courseEntry.getValue().preNum == 0){
+		                queue.offer(courseEntry.getValue());
+		                //set.add(courseEntry.getKey());
+		            }
+		        }
+		        if (queue.isEmpty()) return null;
+		        
+		        while (!queue.isEmpty()){
+		            Course curr = queue.poll();
+		            classList.add(curr.num);
+		            set.add(curr.num);
+		            for (Course postCourse : curr.postCourses){
+		                if (set.contains(postCourse.num)) return null;
+		                postCourse.preNum--;
+		                if (postCourse.preNum == 0){
+		                    //System.out.println(postCourse.num);
+		                    queue.offer(postCourse);
+		                }
+		            }
+		        }
+		        if (courses.size() != set.size()) return null;
+		        int[] output = new int[classList.size()];
+		        for (int i = 0; i < output.length; i++){
+		            output[i] = classList.get(i);
+		        }
+		        return output;
+		    }
+		    private static HashMap<Integer, Course> createCourses(int numCourses, int[][] prerequisites){
+		        HashMap<Integer, Course> courses = new HashMap<>();
+		        for (int i = 0; i < prerequisites.length; i++){
+		            int curr = prerequisites[i][0];
+		            int pre = prerequisites[i][1];
+		            if (!courses.containsKey(curr)){
+		                courses.put(curr, new Course(curr, 1));
+		            } else {
+		                courses.get(curr).preNum++;   // update 不用put，光get就行吗
+		            }
+		            if (!courses.containsKey(pre)){
+		                courses.put(pre, new Course(pre, 0));
+		            } 
+		            courses.get(pre).postCourses.add(courses.get(curr));
+		        }
+		        return courses;
+		    }
+		    
+		    public static void main(String args[]){
+		    	int[] result = findOrder(5, new int[][]{{1,0},{2,0},{3,1},{3,2},{2,7}});
+		    	System.out.println(Arrays.toString(result));
+		    }
+		}
+		    
+
+
