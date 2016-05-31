@@ -1,0 +1,49 @@
+package Interviewed;
+
+import java.util.*;
+
+public class longestSkiPath {
+	public static int findLonestDis(int[][] matrix){
+		Map<Integer, Integer> map = new HashMap<>();   
+	 // key: matrix.length[0] * row + col; value: how many longest steps from this node 
+		int[] max = new int[1];
+		for (int i = 0; i < matrix.length; i++){
+			for (int j = 0; j < matrix[0].length; j++){
+				if (!map.containsKey(i * matrix[0].length + j)){
+					dfs(matrix, i, j, map , max);
+				}
+			}
+		}
+		return max[0];
+	}
+
+	private static int dfs(int[][] matrix, int i, int j, Map<Integer, Integer> map, int[] max){
+		if (map.containsKey(i * matrix[0].length + j)){
+			return map.get(i * matrix[0].length + j);
+		}
+	int left = -1, right = -1, up = -1, down = -1;
+	if (j > 0 && matrix[i][j-1] < matrix[i][j]) left = dfs(matrix, i , j - 1, map, max);
+	if (j <  matrix[0].length - 1 && matrix[i][j+1] < matrix[i][j]) right = dfs(matrix, i , j + 1, map, max);
+	if (i > 0 && matrix[i-1][j] < matrix[i][j]) up = dfs(matrix, i - 1, j, map, max);
+	if (i < matrix.length - 1 && matrix[i+1][j] < matrix[i][j]) down = dfs(matrix, i + 1, j, map, max);
+	int curr = findMax(left, right, up, down) + 1;
+	map.put(i * matrix[0].length + j, curr);
+	max[0] = Math.max(max[0], curr);
+	//System.out.println(curr);
+	return curr;
+	}
+
+	private static int findMax(int i1, int i2, int i3, int i4){
+		int max = i1;
+		max = Math.max(max, i2);
+		max = Math.max(max, i3);
+		max = Math.max(max, i4);
+		return max;
+	}
+	
+	public static void main(String args[]){
+		int[][] matrix = {{7,6,5,6}, {8,7,10,5}, {9,8,9,4}, {10,1,2,3}};
+		int[][] matrix2 = {{10,9,8,7}, {1,1,8,6}, {1,1,2,3}};
+		System.out.println(findLonestDis(matrix2));
+	}
+}
