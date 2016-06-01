@@ -1,0 +1,53 @@
+package Interviewed;
+
+import java.util.*;
+
+public class QuadCombination {
+	// [1,1,2,3,5,6,9]    S = 11  [0,2,3,4] [1,2,3,4]
+	// [1,2,3,5,6,9] [11, 12, 15, 14, ] ; i = [0, size] j = [i, size]
+	// dp[i][j] =  array[i] + array[j]
+	// [n1][m1] [n2][m2], n1!=n2!=m1!=m2
+	// key: value of the array, value: index of the array,
+	// map
+	// KeySet Entry
+	// first Entry 
+	// 
+
+
+	public int[] find4Nums(int[] arr, int S){
+	   // do sanity check here
+	   int[][] pair = new int[arr.length][arr.length]; // dp[i][j] =  array[i] + array[j] for a pair of nums
+	   for (int i = 0; i < arr.length; i++){
+	      for (int j = 0; j < arr.length; j++){
+	         pair[i][j] = arr[i] + arr[j]; 
+	      }
+	   }
+	   
+	   int[] result = null;
+	   Map<Integer, Integer> map = new HashMap<>();
+	   for (int n1 = 0; n1 < arr.length; n1++){
+	      for (int m1 = 0; m1 < arr.length; m1++){
+	         int rest = S -  pair[n1][m1];
+	         map.put(rest, n1 * arr.length + m1);
+	      }
+	   }
+	     for (int n2 = 0; n2 < arr.length; n2++){
+	         for (int m2 = 0; m2 < arr.length; m2++){
+	        	 if (n2 == m2) continue;
+	             if (map.containsValue(n2 * arr.length + m2)) continue;
+	             int sum = pair[n2][m2];
+	             if (map.containsKey(sum)){
+	            	 int idx = map.get(sum);
+	            	 int n = sum / arr.length;
+	            	 int m  = sum % arr.length;
+	            	 if (n == m || n == n2 || m == m2 || n == m2 || m == n2) continue;
+	            	 if (arr[n] == arr[m] || arr[n] == arr[n2] || arr[m] == arr[m2] || arr[n] == arr[m2] 
+	            			 || arr[m] == arr[n2]) continue;
+	            	 return new int[]{n2, m2, n, m};
+	             }
+	         }      
+	   }
+	   
+	   return null;	   
+	}
+}
