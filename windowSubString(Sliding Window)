@@ -1,0 +1,57 @@
+public class Solution {
+    public static String minWindow(String s, String t) {
+        // do sanity check here
+        HashMap<Character, Integer> map = new HashMap<>();
+        for (int i = 0; i < t.length(); i++){
+            Integer num = map.get(t.charAt(i));
+            if (num == null){
+                map.put(t.charAt(i), 1);
+            } else {
+                map.put(t.charAt(i), num + 1);
+            }
+        }
+        int head = 0;
+        int tail = 0;
+        int counter = 0;
+        int[] length_idx = new int[]{-1, -1};
+        char[] array = s.toCharArray();
+        for (; head < array.length; head++){
+            while(counter < t.length() && head < array.length){
+                if (!map.containsKey(array[head])){
+                    head++;
+                    continue;
+                }
+                int left = map.get(array[head]) - 1 ;
+                map.put(array[head], left);
+                if (left >= 0){
+                	counter++;
+                	//break;  // 这个地方要break; 因为for循环的＋ 是每次要过block末尾
+                }
+                break;
+            }
+            while(counter >= t.length() && tail < array.length){
+                Integer left = map.get(array[tail]);
+                if (left == null){
+                    tail++;
+                    continue;
+                } else {
+                    map.put(array[tail], left + 1);
+                    if (length_idx[0] == -1 || length_idx[1] - length_idx[0] > head - tail){
+                      //  System.out.println("#");
+                        length_idx[0] = tail;
+                        length_idx[1] = head;
+                    }
+                    if (left + 1 > 0){
+                        counter--;
+                        //System.out.println(counter);
+                        tail++;
+                        break;
+                    } 
+                    tail++;
+                }
+            }
+        }
+        if (length_idx[0] < 0) return "";
+        return s.substring(length_idx[0], length_idx[1]+1);
+    }
+}
