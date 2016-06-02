@@ -1,0 +1,22 @@
+public class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0){
+            return nums;
+        }
+        int[] max = new int[nums.length - k + 1];
+        Deque<Integer> deque = new LinkedList<>(); // store index of the nums to deque
+        for (int i = 0; i < nums.length; i++){
+            while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]){
+                deque.pollLast();
+            }
+            deque.offerLast(i);
+            while(!deque.isEmpty() && deque.peekFirst() <= i - k){
+                deque.pollFirst();
+            }
+            if (i + 1 - k >= 0){
+                max[i + 1 - k] = nums[deque.peekFirst()];
+            }
+        }
+        return max;
+    }
+}
