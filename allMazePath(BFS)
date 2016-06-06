@@ -1,0 +1,123 @@
+class Node{
+	int x;
+	int y;
+	List<Node> formerNodes = new ArrayList<>();
+	public Node(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
+}
+
+public class allMazePath {
+	public static List<List<Node>> findPath(int[][] matrix, Node entry, Node exit){
+		if (matrix == null) return null;
+		Queue<Node> queue = new LinkedList<>();
+		queue.offer(entry);
+		HashMap<Integer, Node> map = new HashMap<>();
+		map.put(entry.x * matrix.length + entry.y, entry);
+		matrix[entry.x][entry.y] = -1; // Mark Step 1. abs(Step) is the step of current node
+		while (!queue.isEmpty()){
+			Node curr = queue.poll();
+			if (getNei(curr, exit, matrix, queue, map)) break;
+		}
+		Node newExit = map.get(exit.x * matrix.length + exit.y);
+		if (newExit.formerNodes.size() == 0) return null;
+		List<List<Node>> result = new ArrayList<List<Node>>();
+		List<Node> curr= new ArrayList<Node>();
+		curr.add(newExit);
+		dfs(curr, newExit, result);
+		return result;
+		
+	}
+	private static void dfs(List<Node> curr, Node node, List<List<Node>> result){
+		if (node.formerNodes.size() == 0){
+			List<Node> temp = new ArrayList<>(curr);
+			Collections.reverse(temp);
+			result.add(temp);
+			return;
+		}
+		for (Node formerNode : node.formerNodes){
+			curr.add(formerNode);
+			dfs(curr, formerNode, result);
+			curr.remove(curr.size() - 1);
+		}
+	}
+	
+	private static boolean getNei(Node curr, Node exit, int[][] matrix, Queue<Node> queue, HashMap<Integer, Node> map){
+		if (curr.x > 0){
+			if (matrix[curr.x - 1][curr.y] == 0){
+				matrix[curr.x - 1][curr.y] = matrix[curr.x][curr.y] - 1; // abs(Step) is the step of current node
+				Node temp = new Node(curr.x - 1, curr.y);
+				temp.formerNodes.add(curr);
+				map.put((curr.x - 1)* matrix.length +  curr.y, temp);
+				queue.add(temp); // the first time to visit the node. add the node to the queue
+			} else if (matrix[curr.x - 1][curr.y] == matrix[curr.x][curr.y] - 1){ // not the fist time, add the previous node the formerNode list but dont need add queue again
+				Node temp = map.get((curr.x - 1)* matrix.length +  curr.y); // how to retrieve the node ??? I have to use a hashmap to store
+				temp.formerNodes.add(map.get(curr.x * matrix.length + curr.y));
+			} else { 
+				if (curr.x - 1 == exit.x && curr.y == exit.y) return true;
+				 // abs(matrix[curr.x - 1][curr.y]) is larger than abs(matrix[curr.x][curr.y] - 1), which means all of 
+				// shortest path to exit already found. 
+			}
+		}
+		if (curr.y > 0){
+			if (matrix[curr.x][curr.y - 1] == 0){
+				matrix[curr.x][curr.y - 1] = matrix[curr.x][curr.y] - 1;
+				Node temp = new Node(curr.x, curr.y - 1);
+				temp.formerNodes.add(curr);
+				map.put(curr.x* matrix.length +  curr.y - 1, temp);
+				//Node test = map.get(curr.x* matrix.length +  curr.y - 1);
+				//System.out.println(test.x + ", "+ test.y + ", one former: "+ test.formerNodes.get(0).x +", " + test.formerNodes.get(0).y);
+				queue.add(temp);
+			} else if (matrix[curr.x][curr.y - 1] == matrix[curr.x][curr.y] - 1){
+				Node temp = map.get((curr.x)* matrix.length +  curr.y - 1); 
+				temp.formerNodes.add(map.get(curr.x * matrix.length + curr.y));
+			} else { 
+				if (curr.x == exit.x && curr.y - 1 == exit.y) return true;
+			}
+		}
+		if (curr.x < matrix.length - 1){
+			if (matrix[curr.x + 1][curr.y] == 0){
+				matrix[curr.x + 1][curr.y] = matrix[curr.x][curr.y] - 1;
+				Node temp = new Node(curr.x + 1, curr.y);
+				temp.formerNodes.add(curr);
+				map.put((curr.x+1)* matrix.length +  curr.y, temp);
+				queue.add(temp);
+			} else if (matrix[curr.x + 1][curr.y] == matrix[curr.x][curr.y] - 1){
+				Node temp = map.get((curr.x + 1)* matrix.length +  curr.y); 
+				temp.formerNodes.add(map.get(curr.x * matrix.length + curr.y));
+			} else { 
+				if (curr.x + 1 == exit.x && curr.y == exit.y) return true;
+			}
+		}
+		if (curr.y < matrix[0].length - 1){
+			if (matrix[curr.x][curr.y - 1] == 0){
+				matrix[curr.x][curr.y - 1] = matrix[curr.x][curr.y] - 1;
+				Node temp = new Node(curr.x, curr.y - 1);
+				map.put(curr.x* matrix.length + curr.y + 1, temp);
+				temp.formerNodes.add(curr);
+				queue.add(temp);
+			} else if (matrix[curr.x][curr.y + 1] == matrix[curr.x][curr.y] - 1){
+				Node temp = map.get(curr.x* matrix.length +  curr.y + 1); 
+				temp.formerNodes.add(map.get(curr.x * matrix.length + curr.y));
+			} else { 
+				if (curr.x== exit.x && curr.y + 1 == exit.y) return true;
+			}
+		}
+		return false;
+	}
+	
+	public static void main(String args[]){
+		int[][] matrix = {{1, 0, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 1}, {1, 0, 0, 1, 0, 0},{1, 0, 0, 0, 0, 1}};
+		List<List<Node>> result = findPath(matrix, new Node(2, 5), new Node(2, 1));
+		System.out.println(result);
+		for (List<Node> list: result){
+			for (Node node: list){
+				System.out.print(node.x +  ", " + node.y + " --> ");
+			}
+			System.out.print("end");
+			System.out.println();
+		}
+
+	}
+}
