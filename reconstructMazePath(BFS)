@@ -1,0 +1,71 @@
+public class mazePath {
+	public static List<Node> findPath(int[][] matrix, Node entry, Node exit){
+		if (matrix == null) return null;
+		Queue<Node> queue = new LinkedList<>();
+		queue.offer(entry);
+		matrix[entry.x][entry.y] = -1;
+		while (!queue.isEmpty()){
+			Node curr = queue.poll();
+			if (getNei(curr, exit, matrix, queue)) break;	
+		}
+		if (exit.formerNode == null) return null;
+		List<Node> result = new ArrayList<>();
+		while (exit != null){
+			result.add(exit);
+			exit = exit.formerNode;
+		}
+		Collections.reverse(result);
+		return result;
+		
+	}
+	private static boolean getNei(Node curr, Node exit, int[][] matrix, Queue<Node> queue){
+		if (curr.x > 0 && matrix[curr.x - 1][curr.y] == 0){
+			if (curr.x - 1 == exit.x && curr.y == exit.y){
+				exit.formerNode = curr;
+				return true;
+			}
+			matrix[curr.x - 1][curr.y] = -1;
+			Node temp = new Node(curr.x-1, curr.y);
+			temp.formerNode = curr;
+			queue.offer(temp);
+		}
+		if (curr.x < matrix.length - 1 && matrix[curr.x + 1][curr.y] == 0){
+			if (curr.x + 1 == exit.x && curr.y == exit.y){
+				exit.formerNode = curr;
+				return true;
+			}
+			matrix[curr.x + 1][curr.y] = -1;
+			Node temp = new Node(curr.x+1, curr.y);
+			temp.formerNode = curr;
+			queue.offer(temp);
+		}
+		if (curr.y < matrix[0].length - 1 && matrix[curr.x][curr.y+1] == 0){
+			if (curr.x == exit.x && curr.y + 1 == exit.y){
+				exit.formerNode = curr;
+				return true;
+			}
+			matrix[curr.x][curr.y + 1] = -1;
+			Node temp = new Node(curr.x, curr.y + 1);
+			temp.formerNode = curr;
+			queue.offer(temp);
+		}
+		if (curr.y > 0 && matrix[curr.x][curr.y - 1] == 0){
+			if (curr.x == exit.x && curr.y - 1 == exit.y){
+				exit.formerNode = curr;
+				return true;
+			}
+			matrix[curr.x][curr.y - 1] = -1;
+			Node temp = new Node(curr.x, curr.y - 1);
+			temp.formerNode = curr;
+			queue.offer(temp);
+		}
+		return false;
+	}
+	public static void main(String args[]){
+		int[][] matrix = {{1, 0, 1, 1, 1, 1}, {1, 0, 0, 0, 0, 1}, {1, 1, 0, 1, 0, 0},{1, 0, 0, 0, 0, 1}};
+		List<Node> result = findPath(matrix, new Node(2, 5), new Node(3, 1));
+		for (Node node : result){
+			System.out.println(node.x + ", "+ node.y);
+		}
+	}
+}
