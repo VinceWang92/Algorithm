@@ -1,0 +1,53 @@
+class Point{
+    int x;
+    int y;
+    int value;
+    public Point(int x, int y, int value){
+        this.x = x;
+        this.y = y;
+        this.value = value;
+    }
+}
+
+public class Solution {
+    public int longestIncreasingPath(int[][] matrix) {
+        if (matrix == null || matrix.length == 0) return 0;
+        //System.out.println("$");
+        int[][] dp = new int[matrix.length][matrix[0].length];
+        PriorityQueue<Point> minHeap = new PriorityQueue<>(11, new Comparator<Point>(){
+           @Override
+           public int compare(Point p1, Point p2){
+               if (p1.value == p2.value) return 0;
+               return (p1.value < p2.value) ? -1 : 1;
+           }
+        });
+        for (int i = 0; i < matrix.length; i++){
+            for (int j = 0; j < matrix[0].length; j++){
+                minHeap.offer(new Point(i, j, matrix[i][j]));
+            }
+        }
+        int max = 0;
+        while(!minHeap.isEmpty()){
+            Point curr = minHeap.poll();
+            dp[curr.x][curr.y] = helper(dp, curr.x, curr.y, matrix);
+            //System.out.println(curr.x + " " + curr.y + "dp :" +dp[curr.x][curr.y]);
+            max = Math.max(max, dp[curr.x][curr.y]);
+        }
+        return max;
+    }
+    private int helper(int[][] dp, int x, int y, int[][] matrix){
+        int max = 1;
+        int curr = matrix[x][y];
+        max = checkNeibor(dp, curr, x - 1, y, matrix, max);
+        max = checkNeibor(dp, curr, x + 1, y, matrix, max);
+        max = checkNeibor(dp, curr, x, y - 1, matrix, max);
+        max = checkNeibor(dp, curr, x, y + 1, matrix, max);
+        return max;
+    }
+    private int checkNeibor(int[][] dp, int curr, int x, int y, int[][] matrix, int max){
+        if (x < 0 || y < 0 || x > matrix.length - 1 || y > matrix[0].length - 1) return max;
+        if (curr <= matrix[x][y]) return max;
+        return Math.max(max, dp[x][y] + 1);
+    }
+
+}
