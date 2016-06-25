@@ -1,0 +1,36 @@
+public class RabinKarp {
+	private static final long M = Integer.MAX_VALUE;
+	private static final long BASE = 256;
+	
+	private final String s;
+	public long[] prefix;
+	public long[] power;
+	
+	RabinKarp(String s){
+		this.s = s;
+		this.prefix = buildPrefixHash(s);
+		this.power = computePower(s.length() + 1);
+	}
+	
+	private long[] computePower(int length){
+		long[] res = new long[length];
+		res[0] = 1;
+		for (int i = 1; i < length; i++){
+			res[i] = (BASE * res[i - 1]) % M;
+		}
+		return res;
+	}
+	
+	static long[] buildPrefixHash(String s){
+		long[] res = new long[s.length() + 1];
+		for (int i = 0; i < s.length(); i++){
+			res[i + 1] = (res[i] * BASE + s.charAt(i)) % M;
+		}
+		return res;
+	}
+	
+	int hash(int from, int to){
+		return  (int) ((prefix[to] - prefix[from] * power[to - from] % M + M) % M);  // s[from ... to-1] 左闭右开
+	}
+	
+}
